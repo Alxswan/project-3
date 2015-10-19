@@ -1,0 +1,19 @@
+// Place all the styles related to the Pages controller here.
+// They will automatically be included in application.css.
+// You can use Sass (SCSS) here: http://sass-lang.com/
+
+// Canvas
+#canvas {
+  height: 95vh;
+  width: 95vw;
+  padding: 0;
+  display: block;
+  margin: 0 auto;
+  background: #FFF;
+  border: 1px solid #333;
+  margin-bottom: 50px;
+}
+
+#landing {
+  margin: 0 auto;
+}
