@@ -108,22 +108,19 @@ app.AppView = Backbone.View.extend({
 			note = 2100
 		} else if (click < 900) {
 			note = 2400
-		} else if (click < 950) {
+		} else 	{
 			note = 2600
 		} 
 
 
-		else  {
-			note = 2900
-		}
 		app.oscillator.detune.value = note
 		app.oscillator.start(app.audioContext.currentTime)
 		app.oscillator.stop(app.audioContext.currentTime + .5)
 	},
 
 	draw: function(){
-		app.myCircle = new app.paper.Path.Circle(new app.paper.Point(300, 200), 40);
-		app.myCircle.fillColor = 'blue';
+		app.myCircle = new app.paper.Path.Circle(new app.paper.Point(300, 200), 20);
+		app.myCircle.fillColor = 'gold';
 		app.paper.view.draw();
 
 		app.canvasHeight = $('canvas').height()
