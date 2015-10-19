@@ -56,21 +56,111 @@ app.AppView = Backbone.View.extend({
 
 	play: function(event) {
 		event.preventDefault();	
-		console.log(event);
 		app.oscillator = app.audioContext.createOscillator()
 		app.oscillator.connect(app.audioContext.destination)	
 		app.oscillator.type = 'triangle'
-		app.	oscillator.detune.value = event.pageX
+
+		// var input = app.audioContext.createGain()
+		var feedback = app.audioContext.createGain()
+		var delay = app.audioContext.createDelay()
+
+		var output = app.audioContext.createGain()
+		output.connect(app.audioContext.destination)
+
+delay.delayTime.value = 0.3
+feedback.gain.value = 0.8 // dangerous when > 1 ;-)
+
+// dry path
+app.oscillator.connect(output)
+
+// wet path
+app.oscillator.connect(delay)
+
+// feedback loop
+delay.connect(feedback)
+feedback.connect(delay)
+feedback.connect(output)
+
+		var note;
+		var click = event.pageX
+		console.log(event.pageX)
+		if (click < 50) {
+			note = -1700
+		} else if (click < 100) {
+			note = -1500
+		}else if (click < 150) {
+			note = -1200
+		}else if (click < 200) {
+			note = -1000
+		}else if (click < 250) {
+			note = -700
+		}else if (click < 300) {
+			note = -500
+		} else if (click < 350) {
+			note = -300
+		} else if (click < 400) {
+			note = 0
+		} else if (click < 450) {
+			note = 200
+		} else if (click < 500) {
+			note = 500
+		} else if (click < 550) {
+			note = 700
+		} else if (click < 600 ) {
+			note = 900
+		} else if (click < 650 ) {
+			note = 1200
+		} else if (click < 700) {
+			note = 1400
+		} else if (click < 750) {
+			note = 1700
+		} else if (click < 800) {
+			note = 1900
+		} else if (click < 850) {
+			note = 2100
+		} else if (click < 900) {
+			note = 2400
+		} else if (click < 950) {
+			note = 2600
+		} 
+
+
+		else  {
+			note = 2900
+		}
+		app.oscillator.detune.value = note
 		app.oscillator.start(app.audioContext.currentTime)
 		app.oscillator.stop(app.audioContext.currentTime + .5)
 	},
 
 	draw: function(){
-		// app.paper = new PaperScope();
-    // app.paper.setup($("canvas")[0]);
-		app.myCircle = new app.paper.Path.Circle(new app.paper.Point(300, 200), 50);
+		app.myCircle = new app.paper.Path.Circle(new app.paper.Point(300, 200), 20);
 		app.myCircle.fillColor = 'black';
-		
 		app.paper.view.draw();
+
+		app.canvasHeight = $('canvas').height()
+    app.canvasWidth = $('canvas').width()
+
+	for (var i = 0; i < canvas.width; i += 50) {
+		 app.newPath = new app.paper.Path.Line({
+      from: [i, 0],
+      to: [i, app.canvasHeight],
+      strokeColor: 'black',
+      strokeWidth: 2,
+      fillColor: 'black',
+      opacity: 0.5,
+      closed: true
+    });
 	}
+
+		var tool = new Tool();
+
+		tool.onMouseDrag = function (event) {
+		if (app.myCircle) {
+			console.log('drag')
+			app.myCircle.position = event.point;
+			}
+		}
+	}
+
 });
