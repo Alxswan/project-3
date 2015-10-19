@@ -4,16 +4,20 @@
 
 // Canvas
 #canvas {
-  height: 95vh;
-  width: 95vw;
+  height: 500px;
+  width: 950px;
   padding: 0;
   display: block;
   margin: 0 auto;
-  background: #FFF;
+  background: black;
   border: 1px solid #333;
   margin-bottom: 50px;
 }
 
 #landing {
   margin: 0 auto;
+}
+
+body {
+  background-color: grey;
 }
