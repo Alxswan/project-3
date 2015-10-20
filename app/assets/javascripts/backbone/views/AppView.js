@@ -157,8 +157,8 @@ app.AppView = Backbone.View.extend({
 		feedback.gain.value = 0.6 // dangerous when > 1 ;-)
 		// dry path
 		app.oscillator.connect(output)
-		// wet 
-		app.oscillator.connect(delay)path
+		// wet path
+		app.oscillator.connect(delay)
 
 		// feedback loop
 		delay.connect(feedback)
