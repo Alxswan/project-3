@@ -18,4 +18,6 @@
 //= require backbone_rails_sync
 //= require backbone_datalink
 //= require backbone/create
+//= require node_creation
+//= require paper.animate
 //= require_tree .
