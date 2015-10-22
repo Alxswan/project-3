@@ -3,16 +3,41 @@
 // You can use Sass (SCSS) here: http://sass-lang.com/
 @import url(https://fonts.googleapis.com/css?family=Poiret+One);
 // Canvas
+
+html, body {
+  max-width: 100vw;
+  max-height: 100vh;
+  overflow: hidden;
+}
+
 #canvas {
-  height: 300px;
-  width: 950px;
+  height: 100vh;
+  width: 100vw;
   padding: 0;
   display: block;
   margin: 0 auto;
   background: black;
   border: 1px solid #333;
   margin-bottom: 50px;
-  border-radius: 10%;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.desaturated {
+  -webkit-filter: saturate( 0 );
+  -moz-filter: saturate( 0 );
+  -ms-filter: saturate( 0 );
+  -o-filter: saturate( 0 );
+  filter: saturate( 0 ); 
+}
+
+.inverted {
+  -webkit-filter: invert( 100% );
+  -moz-filter: invert( 100% );
+  -ms-filter: invert( 100% );
+  -o-filter: invert( 100% );
+  filter: invert( 100% );  
 }
 
 #landing {
@@ -20,8 +45,21 @@
 }
 
 body {
-  background-color: #222;
-font-family: 'Poiret One', cursive;
+  background-color: black;
+  height: 100vh;
+  width: 100vw;
+  font-family: 'Poiret One', cursive;
   text-align: center;
   color: white;
+}
+
+h1 {
+  position: absolute;
+  z-index: 1;
+}
+
+.controls {
+  position: absolute;
+  top: 90vh;
+  z-index: 2;
 }

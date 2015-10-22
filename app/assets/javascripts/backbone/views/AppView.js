@@ -23,12 +23,23 @@ app.AppView = Backbone.View.extend({
 		'click #newNode' : 'addNode',
 		'click #start' : 'start',
 		'click #stop' : 'stop',
-		'click #strum' : 'strumButton'
+		'click #strum' : 'strumButton',
+		'click #newBeatNode' : 'addBeatNode',
+		'click #desaturate' : 'desaturate',
+		'click #invert' : 'invert'
 	},
 
 	initialize: function() {
 		app.audioContext = new AudioContext()
 		app.playing = false;
+	},
+
+	invert: function () {
+		$("body").addClass('inverted').removeClass('desaturated');
+	},
+
+	desaturate: function () {
+		$("body").addClass('desaturated').removeClass('inverted');
 	},
 
 	render: function() {
@@ -53,18 +64,30 @@ app.AppView = Backbone.View.extend({
 
 	start: function() {
 		app.playing = true
+		if (!app.beatInterval){
+			console.log('hhh')
+		  setupBeatInterval( calculateBPS( 60 ) );
+		}
 	},
 
 	stop: function() {
 		app.playing = false
+		if (app.beatInterval){
+			clearBeatInterval();
+			app.beatInterval = null;
+		}
+	},
+
+	addBeatNode: function() {
+		app.createBeatNode();
 	},
 
 	addNode: function() {
 		var destinationX = app.beatNode.position.x;
 		var destinationY = app.beatNode.position.y;
 
-		var startX = 300;
-		var startY = 200;
+		var startX = _.random( 0, window.innerWidth ) || 300;
+		var startY = _.random( 0, window.innerHeight ) || 200;
 
 		var myPath = new Path();
 		myPath.strokeColor = 'white';
@@ -74,12 +97,13 @@ app.AppView = Backbone.View.extend({
 		myPath.add(new Point(startX, startY));
 		myPath.itemType = 'connection';
 
-		app.myCircle = new app.paper.Path.Circle(new app.paper.Point(startX, startY), 20);
+		app.myCircle = new app.paper.Path.Circle(new app.paper.Point(startX, startY), 15);
 		app.myCircle.fillColor = 'gold';
 		app.myCircle.itemType = 'soundNode';
 
 		app.myCircle.nodePaths = [];
 		app.beatNode.connections.push( myPath );
+		app.beatNode.connections.circles.push( app.myCircle )
 		app.myCircles.push( app.myCircle );
 		app.myCircle.nodePaths.push( myPath );
 
@@ -98,24 +122,24 @@ app.AppView = Backbone.View.extend({
 		if (app.strumState) {
 			app.tool.onMouseMove = _.throttle(function (event) {
 				view.strum(event);
-			}, 100)
+			}, 500)
 		} else {
 			app.tool.onMouseMove = null
 		}
-		if ( !app.playID && app.playing) {
-			app.playID = window.setInterval( function () { 
-				for ( var i = 0; i < app.nodes.length; i++ ) {
-					var circle = app.nodes[i];
-			  	var delay = 0
-			  	var pitch = view.getNote(circle.position.x)
-					var duration = circle.getBounds().width / 100
+		// if ( !app.playID && app.playing) {
+		// 	app.playID = window.setInterval( function () { 
+		// 		for ( var i = 0; i < app.nodes.length; i++ ) {
+		// 			var circle = app.nodes[i];
+		// 	  	var delay = 0
+		// 	  	var pitch = view.getNote(circle.position.x)
+		// 			var duration = circle.getBounds().width / 100
 
-					view.play( delay, pitch, duration );
-				}
-			}, 1000);
-		} else if (!app.playing) {
-			clearInterval(app.playID);
-		}
+		// 			view.play( delay, pitch, duration );
+		// 		}
+		// 	}, 1000);
+		// } else if (!app.playing) {
+		// 	clearInterval(app.playID);
+		// }
   },
 
   play: function( delay, pitch, duration ) {
@@ -178,8 +202,11 @@ app.AppView = Backbone.View.extend({
   strumButton: function() {
   	if (!app.strumState) {
 			app.strumState = true
+			$('#strum').html('Strum Off')
 		} else {
 			app.strumState = false
+			$('#strum').html('Strum On')
+
 		}
   },
 
@@ -224,10 +251,10 @@ app.AppView = Backbone.View.extend({
 		for (var i = 0; i < canvas.width; i += 50) {
 			 app.newPath = new app.paper.Path.Line({
 	      from: [i, 0],
-	      to: [i, app.canvasHeight],
-	      strokeColor: 'white',
-	      strokeWidth: 1,
-	      fillColor: 'white',
+	      to: [i, app.canvasHeight * 5],
+	      strokeColor: 'orange',
+	      strokeWidth: 2,
+	      fillColor: 'orange',
 	      opacity: 0.1,
 	      closed: true
 	    });
@@ -235,9 +262,37 @@ app.AppView = Backbone.View.extend({
 		}	
 
 		app.tool.onMouseDown = function (event) {
+
 			var hitResult = project.hitTest(event.point);
 			if ( !hitResult || !hitResult.item ) { return false; }
 			var itemType = hitResult.item.itemType;
+
+			if (event.event.shiftKey) {
+				if (app.beatNodes.length === 1 && hitResult.item.itemType === 'beatNode') {
+							//error handling here
+					console.log('only one')
+					for (var i = 0; i < hitResult.item.connections.length; i++) {
+						for (var j = 0; j < hitResult.item.connections.circles.length; j++) {
+							hitResult.item.connections.circles[j].remove();
+						}
+
+						hitResult.item.connections[i].remove();
+						clearBeatInterval()
+					}
+					hitResult.item.remove()
+				} else if (hitResult.item.itemType === 'beatNode') {
+					//clicked beatNode, remove node paths connected and soundnodes connected 
+					for (var i = 0; i < hitResult.item.connections.length; i++) {
+
+						hitResult.item.connections[i].remove()
+
+					}
+					hitResult.item.remove()
+				} else if (hitResult.item.itemType === 'soundNode') {
+					//remove soundnode and path
+				}
+
+			}
 
 			app.selectedItem = null;
 
@@ -264,28 +319,25 @@ app.AppView = Backbone.View.extend({
 				app.selectedItem.position = event.point;
 
 				if ( app.selectedItem.nodePaths || app.selectedItem.connections ) {
+
 					if ( app.selectedItem.itemType === 'beatNode' ) {
 						for ( var i = 0; i < app.selectedItem.connections.length; i++ ) {
 							app.selectedItem.connections[i].segments[0].point.x = event.point.x;
 							app.selectedItem.connections[i].segments[0].point.y = event.point.y;						
 						}
-						for (var i = 0; i < app.animationGroup.children.length; i++) {
-							var child = app.animationGroup.children[i]
-							child.remove()
-						}
+
 					} else {
 						for ( var i = 0; i < app.selectedItem.nodePaths.length; i++ ) {
 							app.selectedItem.nodePaths[0].segments[1].point.x = event.point.x;
 							app.selectedItem.nodePaths[0].segments[1].point.y = event.point.y;
 						}
 					}
+					for (var i = 0; i < app.animationGroup.children.length; i++) {
+							var child = app.animationGroup.children[i]
+							child.remove()
+						}				
 				}
-
-				// Change the end point of the paths between it
 			}
-		}
-		
-		
+		}		
 	}
-
 });
