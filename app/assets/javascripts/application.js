@@ -14,10 +14,10 @@
 //= require jquery_ujs
 //= require turbolinks
 //= require underscore
+//= require paper.animate
 //= require backbone
 //= require backbone_rails_sync
 //= require backbone_datalink
 //= require backbone/create
 //= require node_creation
-//= require paper.animate
 //= require_tree .

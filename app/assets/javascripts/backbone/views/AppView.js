@@ -1,7 +1,7 @@
 var app = app || {};
 app.nodes = [];
+app.myCircles = [];
 var selected = false;
-
 
 window.requestAnimFrame = (function(){ 
     return (
@@ -32,7 +32,6 @@ app.AppView = Backbone.View.extend({
 	},
 
 	render: function() {
-		
 		var appViewTemplate = $('#appViewTemplate').html();
 		this.$el.html( appViewTemplate );
 		paper.install( window );
@@ -40,6 +39,13 @@ app.AppView = Backbone.View.extend({
 		app.paper = new PaperScope();
 		app.tool = new Tool();
     app.paper.setup( $("canvas")[0] );
+
+    app.updater = new PaperAnimate.Updater();
+
+    app.paper.view.onFrame = function ( event ) {
+    	app.updater.update( event );
+    }
+
  		this.draw()
     this.frameLooper();
     setupNodes();
@@ -54,8 +60,29 @@ app.AppView = Backbone.View.extend({
 	},
 
 	addNode: function() {
-		app.myCircle = new app.paper.Path.Circle(new app.paper.Point(300, 200), 20);
+		var destinationX = app.beatNode.position.x;
+		var destinationY = app.beatNode.position.y;
+
+		var startX = 300;
+		var startY = 200;
+
+		var myPath = new Path();
+		myPath.strokeColor = 'white';
+		myPath.strokeWidth = 10;
+		myPath.strokeCap = 'round';
+		myPath.add(new Point(destinationX, destinationY));
+		myPath.add(new Point(startX, startY));
+		myPath.itemType = 'connection';
+
+		app.myCircle = new app.paper.Path.Circle(new app.paper.Point(startX, startY), 20);
 		app.myCircle.fillColor = 'gold';
+		app.myCircle.itemType = 'soundNode';
+
+		app.myCircle.nodePaths = [];
+		app.beatNode.connections.push( myPath );
+		app.myCircles.push( app.myCircle );
+		app.myCircle.nodePaths.push( myPath );
+
 		app.nodes.push( app.myCircle );
 	},
 
@@ -100,7 +127,7 @@ app.AppView = Backbone.View.extend({
   	var endTime = startTime + duration
   	oscillator.start(startTime)
   	oscillator.stop(endTime)
-  	oscillator.detune.value = pitch
+  	oscillator.detune.value = app.appView.getNote( pitch );
   },
 
   getNote: function(position) {
@@ -170,8 +197,8 @@ app.AppView = Backbone.View.extend({
 		var output = app.audioContext.createGain()
 		output.connect(app.audioContext.destination)
 
-		delay.delayTime.value = 0.6
-		feedback.gain.value = 0.6 // dangerous when > 1 ;-)
+		delay.delayTime.value = 0.3
+		feedback.gain.value = 0.2 // dangerous when > 1 ;-)
 		// dry path
 		app.oscillator.connect(output)
 		// wet path
@@ -191,12 +218,6 @@ app.AppView = Backbone.View.extend({
 	},
 
 	draw: function(){
-		app.myCircle = new app.paper.Path.Circle(new app.paper.Point(300, 200), 20);
-		app.myCircle.fillColor = 'gold';
-		app.myCircle.opacity = 0.4;
-		app.nodes.push( app.myCircle );
-		app.paper.view.draw();
-
 		app.canvasHeight = $('canvas').height()
     app.canvasWidth = $('canvas').width()
 
@@ -210,18 +231,26 @@ app.AppView = Backbone.View.extend({
 	      opacity: 0.1,
 	      closed: true
 	    });
+			 app.newPath.itemType = 'line'
 		}	
 
 		app.tool.onMouseDown = function (event) {
 			var hitResult = project.hitTest(event.point);
-			if ( hitResult && !selected ) {
-				var selected = true;
-				app.selectedItem = hitResult.item;
-				hitResult.item.fillColor = "blue";
-			} else {
-				selected = false;
-				app.selectedItem = null;
-			}
+			if ( !hitResult || !hitResult.item ) { return false; }
+			var itemType = hitResult.item.itemType;
+
+			app.selectedItem = null;
+
+			if ( itemType	=== 'beatNode' || itemType === 'soundNode') {
+				if ( hitResult && !selected ) {
+					var selected = true;
+					app.selectedItem = hitResult.item;
+					hitResult.item.fillColor = "blue";
+				} else {
+					selected = false;
+					app.selectedItem = null;
+				}
+			} else { return false; }
 		}
 
 		app.tool.onMouseUp = function ( event ) {
@@ -233,6 +262,26 @@ app.AppView = Backbone.View.extend({
 		app.tool.onMouseDrag = function (event) {
 			if ( app.selectedItem ) {
 				app.selectedItem.position = event.point;
+
+				if ( app.selectedItem.nodePaths || app.selectedItem.connections ) {
+					if ( app.selectedItem.itemType === 'beatNode' ) {
+						for ( var i = 0; i < app.selectedItem.connections.length; i++ ) {
+							app.selectedItem.connections[i].segments[0].point.x = event.point.x;
+							app.selectedItem.connections[i].segments[0].point.y = event.point.y;						
+						}
+						for (var i = 0; i < app.animationGroup.children.length; i++) {
+							var child = app.animationGroup.children[i]
+							child.remove()
+						}
+					} else {
+						for ( var i = 0; i < app.selectedItem.nodePaths.length; i++ ) {
+							app.selectedItem.nodePaths[0].segments[1].point.x = event.point.x;
+							app.selectedItem.nodePaths[0].segments[1].point.y = event.point.y;
+						}
+					}
+				}
+
+				// Change the end point of the paths between it
 			}
 		}
 		

@@ -6,8 +6,8 @@ app.AppRouter = Backbone.Router.extend({
 	},
 
 	index: function() {
-		var appView = new app.AppView();
-		appView.render();
+		app.appView = new app.AppView();
+		app.appView.render();
     
 	}
 });
