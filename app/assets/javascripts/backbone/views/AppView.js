@@ -211,8 +211,8 @@ app.AppView = Backbone.View.extend({
 		var output = app.audioContext.createGain()
 		output.connect(app.audioContext.destination)
 
-		delay.delayTime.value = 0
-		feedback.gain.value = .5 // dangerous when > 1 ;-)
+		delay.delayTime.value = .2
+		feedback.gain.value = .8 // dangerous when > 1 ;-)
 		// dry path
 		app.oscillator.connect(output)
 		// wet path
