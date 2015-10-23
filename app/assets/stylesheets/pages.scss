@@ -60,6 +60,34 @@ h1 {
 
 .controls {
   position: absolute;
-  top: 90vh;
+  top: 200px;
   z-index: 2;
+}
+
+/* #Clouds Flat Button
+==================================================*/
+button {
+  vertical-align: top;
+  width: 100px;
+  height: 40px;
+  padding: 0;
+  font-size: 15px;
+  font-family: 'Poiret One', cursive;
+  display: block;
+
+  color:#454545;
+  text-align: center;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+  background: #ecf0f1;
+  border: 0;
+  border-bottom: 2px solid #dadedf;
+  cursor: pointer;
+  -webkit-box-shadow: inset 0 -2px #dadedf;
+  box-shadow: inset 0 -2px #dadedf;
+}
+button:active {
+  top: 1px;
+  outline: none;
+  -webkit-box-shadow: none;
+  box-shadow: none;
 }

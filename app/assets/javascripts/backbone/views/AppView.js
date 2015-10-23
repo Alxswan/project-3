@@ -91,7 +91,7 @@ app.AppView = Backbone.View.extend({
 
 		var myPath = new Path();
 		myPath.strokeColor = 'white';
-		myPath.strokeWidth = 10;
+		myPath.strokeWidth = 5;
 		myPath.strokeCap = 'round';
 		myPath.add(new Point(destinationX, destinationY));
 		myPath.add(new Point(startX, startY));
@@ -126,20 +126,6 @@ app.AppView = Backbone.View.extend({
 		} else {
 			app.tool.onMouseMove = null
 		}
-		// if ( !app.playID && app.playing) {
-		// 	app.playID = window.setInterval( function () { 
-		// 		for ( var i = 0; i < app.nodes.length; i++ ) {
-		// 			var circle = app.nodes[i];
-		// 	  	var delay = 0
-		// 	  	var pitch = view.getNote(circle.position.x)
-		// 			var duration = circle.getBounds().width / 100
-
-		// 			view.play( delay, pitch, duration );
-		// 		}
-		// 	}, 1000);
-		// } else if (!app.playing) {
-		// 	clearInterval(app.playID);
-		// }
   },
 
   play: function( delay, pitch, duration ) {
@@ -157,45 +143,46 @@ app.AppView = Backbone.View.extend({
   getNote: function(position) {
   	var note;	
 		var click = position
-		if (click < 50) {
+		if (click < 80) {
 			note = -1700
-		} else if (click < 100) {
+		} else if (click < 160) {
 			note = -1500
-		} else if (click < 150) {
+		} else if (click < 240) {
 			note = -1200
-		} else if (click < 200) {
+		} else if (click < 320) {
 			note = -1000
-		} else if (click < 250) {
-			note = -700
-		} else if (click < 300) {
-			note = -500
-		} else if (click < 350) {
-			note = -300
 		} else if (click < 400) {
+			note = -700
+		} else if (click < 480) {
+			note = -500
+		} else if (click < 560) {
+			note = -300
+		} else if (click < 640) {
 			note = 0
-		} else if (click < 450) {
+		} else if (click < 720) {
 			note = 200
-		} else if (click < 500) {
-			note = 500
-		} else if (click < 550) {
-			note = 700
-		} else if (click < 600 ) {
-			note = 900
-		} else if (click < 650 ) {
-			note = 1200
-		} else if (click < 700) {
-			note = 1400
-		} else if (click < 750) {
-			note = 1700
 		} else if (click < 800) {
+			note = 500
+		} else if (click < 880) {
+			note = 700
+		} else if (click < 960 ) {
+			note = 900
+		} else if (click < 1040 ) {
+			note = 1200
+		} else if (click < 1120) {
+			note = 1400
+		} else if (click < 1200) {
+			note = 1700
+		} else if (click < 1280) {
 			note = 1900
-		} else if (click < 850) {
+		} else if (click < 1360) {
 			note = 2100
-		} else if (click < 900) {
+		} else if (click < 1440) {
 			note = 2400
 		} else 	{
 			note = 2600
 		}
+		console.log(note)
 		return note; 
   },
 
@@ -224,8 +211,8 @@ app.AppView = Backbone.View.extend({
 		var output = app.audioContext.createGain()
 		output.connect(app.audioContext.destination)
 
-		delay.delayTime.value = 0.3
-		feedback.gain.value = 0.2 // dangerous when > 1 ;-)
+		delay.delayTime.value = 0
+		feedback.gain.value = .5 // dangerous when > 1 ;-)
 		// dry path
 		app.oscillator.connect(output)
 		// wet path
@@ -241,14 +228,14 @@ app.AppView = Backbone.View.extend({
 
 		app.oscillator.detune.value = note
 		app.oscillator.start(app.audioContext.currentTime)
-		app.oscillator.stop(app.audioContext.currentTime + .5)
+		app.oscillator.stop(app.audioContext.currentTime + .1)
 	},
 
 	draw: function(){
 		app.canvasHeight = $('canvas').height()
     app.canvasWidth = $('canvas').width()
 
-		for (var i = 0; i < canvas.width; i += 50) {
+		for (var i = 0; i < canvas.width; i += 80) {
 			 app.newPath = new app.paper.Path.Line({
 	      from: [i, 0],
 	      to: [i, app.canvasHeight * 5],

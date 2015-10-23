@@ -29,7 +29,7 @@ var setupBeatInterval = function ( bpm ) {
               (function (i) {
                 var startX = app.beatNode.getBounds().x + (app.beatNode.getBounds().width / 2)
                 var startY = app.beatNode.getBounds().y + (app.beatNode.getBounds().width / 2)
-                var myCircle = new app.paper.Path.Circle(new app.paper.Point(startX, startY), 10);
+                var myCircle = new app.paper.Path.Circle(new app.paper.Point(startX, startY), 5);
                 myCircle.fillColor = 'white';
                 myCircle.itemType = 'emissionNode';
                 app.animationGroup.addChild( myCircle );  
